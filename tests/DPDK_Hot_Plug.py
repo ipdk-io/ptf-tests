@@ -38,10 +38,10 @@ from scapy.fields import *
 from scapy.all import *
 
 # framework related imports
-import common.utils.ovsp4ctl_utils as ovs_p4ctl
+import common.utils.p4rtctl_utils as p4rt_ctl
 import common.utils.test_utils as test_utils
 from common.utils.config_file_utils import get_config_dict, get_gnmi_params_simple, get_gnmi_params_hotplug, get_interface_ipv4_dict, get_interface_ipv4_dict_hotplug, get_interface_mac_dict_hotplug, get_interface_ipv4_route_dict_hotplug, create_port_vm_map
-from common.utils.gnmi_cli_utils import gnmi_cli_set_and_verify, gnmi_set_params, ip_set_ipv4
+from common.utils.gnmi_ctl_utils import gnmi_ctl_set_and_verify, gnmi_set_params, ip_set_ipv4
 from common.lib.telnet_connection import connectionManager
 
 
@@ -66,7 +66,9 @@ class Dpdk_Hot_Plug(BaseTest):
         self.gnmicli_params = get_gnmi_params_simple(self.config_data)
         self.gnmicli_hotplug_params = get_gnmi_params_hotplug(self.config_data)
         self.interface_ip_list = get_interface_ipv4_dict(self.config_data)
-
+        print("Output:",self.gnmicli_hotplug_params)
+        
+           
     def runTest(self):
 
         result, vm_name = test_utils.vm_create_with_hotplug(self.config_data)
@@ -78,8 +80,8 @@ class Dpdk_Hot_Plug(BaseTest):
         time.sleep(30)
         
         vm=self.config_data['vm'][0]
-        vm['hotplug']['qemu-socket-ip']
-        conn1 = connectionManager(vm['hotplug']['qemu-socket-ip'],vm['hotplug']['serial-telnet-port'],vm['vm_username'], password=vm['vm_password'])
+        vm['qemu-hotplug-mode']['qemu-socket-ip']
+        conn1 = connectionManager(vm['qemu-hotplug-mode']['qemu-socket-ip'],vm['qemu-hotplug-mode']['serial-telnet-port'],vm['vm_username'], password=vm['vm_password'])
 
         vm1_command_list = ["ip a | egrep \"[0-9]*: \" | cut -d ':' -f 2"]
         result = test_utils.sendCmd_and_recvResult(conn1, vm1_command_list)[0]
@@ -87,11 +89,11 @@ class Dpdk_Hot_Plug(BaseTest):
         vm1result1 = list(dropwhile(lambda x: 'lo\r' not in x, result))
 
 
-        if not gnmi_cli_set_and_verify(self.gnmicli_params):
+        if not gnmi_ctl_set_and_verify(self.gnmicli_params):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to configure gnmi cli ports")
 
-        if not gnmi_cli_set_and_verify(self.gnmicli_hotplug_params):
+        if not gnmi_ctl_set_and_verify(self.gnmicli_hotplug_params):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to configure hotplug through gnmi")
 

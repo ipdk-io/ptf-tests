@@ -229,7 +229,7 @@ def get_gnmi_params_hotplug(data, action="add"):
         return None
 
     common = ['device', 'name']
-    mandatory = ['qemu-socket-ip', 'qemu-socket-port', 'qemu-vm-mac', 'qemu-vm-netdev-id', 'qemu-vm-chardev-id', 'native-socket-path', 'qemu-vm-device-id']
+    mandatory = ['qemu-socket-ip', 'qemu-socket-port', 'qemu-vm-mac-address', 'qemu-vm-netdev-id', 'qemu-vm-chardev-id', 'native-socket-path', 'qemu-vm-device-id']
     optional = [] #TBD
     params=[]
     for port in data['port']:
@@ -238,30 +238,30 @@ def get_gnmi_params_hotplug(data, action="add"):
         if not device_type:
             return None
         if device_type != 'vhost' \
-                or 'hotplug' not in port.keys():
+                or 'qemu-hotplug-mode' not in port.keys():
             continue
 
         for field in common:
             param += f"{field}:{port[field]},"
         if action == "del":
-            param += "hotplug:del"
+            param += "qemu-hotplug-mode:del"
             params.append(param)
             continue
-        param += "hotplug:add,"
+        param += "qemu-hotplug-mode:add,"
 
         for field in mandatory:
-            param += f"{field}:{port['hotplug'][field]},"
+            param += f"{field}:{port['qemu-hotplug-mode'][field]},"
 
         for field in optional:
             if field in port.keys():
-                param += f"{field}:{port['hotplug'][field]},"
+                param += f"{field}:{port['qemu-hotplug-mode'][field]},"
 
         param = ','.join(param.split(',')[:-1])
 
         params.append(param)
 
     if not params:
-        print("No vhost port mentioned as 'hotplug' in json")
+        print("No vhost port mentioned as 'qemu-hotplug-mode' in json")
 
     return params
 

@@ -486,8 +486,8 @@ def vm_create_with_hotplug(config_data, memory="512M"):
  -object memory-backend-file,id=mem,size={memory},mem-path=/dev/hugepages,share=on \
  -mem-prealloc \
  -numa node,memdev=mem \
- -monitor telnet::{vm['hotplug']['qemu-socket-port']},server,nowait \
- -serial telnet::{vm['hotplug']['serial-telnet-port']},server &)"
+ -monitor telnet::{vm['qemu-hotplug-mode']['qemu-socket-port']},server,nowait \
+ -serial telnet::{vm['qemu-hotplug-mode']['serial-telnet-port']},server &)"
         
         print(cmd)
 

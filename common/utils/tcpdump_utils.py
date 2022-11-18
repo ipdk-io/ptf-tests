@@ -15,6 +15,7 @@
 # limitations under the License.
 from common.lib.tcpdump import TcpDumpCap
 from common.lib.local_connection import Local
+import common.utils.log as log
 import os,shutil
 
 
@@ -63,7 +64,7 @@ def tcpdump_get_pcap(interface):
         output = open(pcapfile).read()
         return output
     else: 
-        print("Pcap file does not exist or empty")
+        log.failed("Pcap file does not exist or empty")
 
 def tcdump_match_str(superstring, substring):
     """
@@ -92,7 +93,7 @@ def tcpdump_remove_pcap_file(interface):
             shutil.rmtree(pcapdir)
             return pcapdir
         except OSError as e:
-            print(f"FAIL: Failed to remove {pcapdir}due to {e.strerror}")
+            log.failed(f"Failed to remove {pcapdir}due to {e.strerror}")
             return False
 
 def tcpdump_tear_down():
