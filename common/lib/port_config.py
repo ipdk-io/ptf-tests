@@ -52,6 +52,7 @@ class PortConfig(object):
             self.local = Local()
             self.cmd_prefix = "gnmi-ctl"
 
+
         def gnmi_ctl_set(self, params):
             """
             gnmi-cli set command

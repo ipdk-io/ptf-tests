@@ -196,12 +196,9 @@ def ip_set_dev_up(
     :type: devname: string
     :return: True/False --> boolean
     """
-    port_config = PortConfig(
-        remote=remote, hostname=hostname, username=username, passwd=password
-    )
-    if not port_config.Ip.iplink_enable_disable_link(
-        devname, status_to_change=status_to_change
-    ):
+    port_config = PortConfig(remote=remote,hostname=hostname,
+                                         username=username, passwd=password)
+    if not port_config.Ip.iplink_enable_disable_link(devname, status_to_change=status_to_change):
         log.failed(f"fail to enale {devname} {status_to_change}")
         port_config.Ip.tear_down()
         return False

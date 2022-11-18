@@ -79,7 +79,6 @@ def p4rt_ctl_del_entry(bridge, tbl_name, match_key):
         log.failed(f"p4rt_ctl del entry Failed with error: {error}")
         return False
 
-
 def p4rt_ctl_add_member(bridge, tbl_name, member_details):
 
     """
@@ -182,6 +181,7 @@ def p4rt_ctl_get_member(bridge, tbl_name, member_id, member_details=None):
                 log.failed(
                     "Returned member details are not matching with configured group"
                 )
+        
                 return False
 
         return member_returned
@@ -265,7 +265,6 @@ def p4rt_ctl_add_group_and_verify(bridge, tbl_name, group_details):
 
     return True
 
-
 def p4rt_ctl_del_group(bridge, tbl_name, group_id):
     """
     del-group SWITCH TABLE GROUP_ID
@@ -319,6 +318,8 @@ def p4rt_ctl_get_group(bridge, tbl_name, group_id, group_details=None):
                 log.failed(
                     " Returned group details are not matching with configured group"
                 )
+            
+
                 return False
 
         return group_returned
@@ -387,3 +388,4 @@ def p4rt_ctl_reset_counter_entry(bridge, cnt_tbl_name, flow):
            ipv4_host_tbl_flow_counter_packets counter_id=303591076,index=1
     """
     p4rt_ctl.p4ctl_reset_counter_entry(bridge, cnt_tbl_name, flow)
+
