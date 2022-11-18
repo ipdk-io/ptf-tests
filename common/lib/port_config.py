@@ -25,7 +25,7 @@ class PortConfig(object):
         """
         Constructor method
         """
-        self.GNMICLI = self._GNMICLI()
+        self.GNMICTL = self._GNMICTL()
         self.Ip = self._IpCMD(remote = remote, hostname = hostname , username
         = username, passwd = passwd)
 
@@ -41,17 +41,17 @@ class PortConfig(object):
             """
             return " ".join([self.cmd_prefix, cmd])
 
-    class _GNMICLI(_Common):
+    class _GNMICTL(_Common):
         def __init__(self):
             """
             Constructor method
             """
             # self.ssh = SSH(host, username, password)
             self.local = Local()
-            self.cmd_prefix = 'gnmi-cli'
+            self.cmd_prefix = f'gnmi-ctl'
 
 
-        def gnmi_cli_set(self, params):
+        def gnmi_ctl_set(self, params):
             """
             gnmi-cli set command
             :param params: all parameters required for gnmi-cli set
@@ -67,7 +67,7 @@ class PortConfig(object):
             print(f"PASS: {cmd}")
             return output
 
-        def gnmi_cli_get(self, mandatory_params, key):
+        def gnmi_ctl_get(self, mandatory_params, key):
             """
             gnmi-cli get command
             :param mandatory_params: "device:virtual-device,name:net_vhost0"
@@ -82,7 +82,7 @@ class PortConfig(object):
                 raise ExecuteCMDException(f'Failed to execute command "{cmd}"')
             return output
 
-        def gnmi_cli_get_counter(self, mandatory_params, key="counters"):
+        def gnmi_ctl_get_counter(self, mandatory_params, key="counters"):
             """
             gnmi-cli get command
             :param mandatory_params: "device:virtual-device,name:TAP2,counters"

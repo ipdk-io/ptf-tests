@@ -30,16 +30,11 @@ from ptf.base_tests import BaseTest
 from ptf.testutils import *
 from ptf import config
 
-# scapy related imports
-from scapy.packet import *
-from scapy.fields import *
-from scapy.all import *
-
 # framework related imports
-import common.utils.ovsp4ctl_utils as ovs_p4ctl
+import common.utils.p4rtctl_utils as p4rt_ctl
 import common.utils.test_utils as test_utils
 from common.utils.config_file_utils import get_config_dict, get_gnmi_params_simple, get_interface_ipv4_dict
-from common.utils.gnmi_cli_utils import gnmi_cli_set_and_verify, gnmi_set_params, ip_set_ipv4, gnmi_get_params_counter
+from common.utils.gnmi_ctl_utils import gnmi_ctl_set_and_verify,ip_set_ipv4, gnmi_get_params_counter
 
 class L3_Verify_Traffic_with_Action_Profile(BaseTest):
 
@@ -55,16 +50,16 @@ class L3_Verify_Traffic_with_Action_Profile(BaseTest):
 
         self.config_data = get_config_dict(config_json)
 
-        self.gnmicli_params = get_gnmi_params_simple(self.config_data)
+        self.gnmictl_params = get_gnmi_params_simple(self.config_data)
         self.interface_ip_list = get_interface_ipv4_dict(self.config_data)
         
 
     def runTest(self):
-        if not test_utils.gen_dep_files_p4c_ovs_pipeline_builder(self.config_data):
+        if not test_utils.gen_dep_files_p4c_tdi_pipeline_builder(self.config_data):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to generate P4C artifacts or pb.bin")
 
-        if not gnmi_cli_set_and_verify(self.gnmicli_params):
+        if not gnmi_ctl_set_and_verify(self.gnmictl_params):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to configure gnmi cli ports")
 
@@ -77,13 +72,13 @@ class L3_Verify_Traffic_with_Action_Profile(BaseTest):
             device, port = port_id
             self.dataplane.port_add(ifname, device, port)
 
-        if not ovs_p4ctl.ovs_p4ctl_set_pipe(self.config_data['switch'], self.config_data['pb_bin'], self.config_data['p4_info']):
+        if not p4rt_ctl.p4rt_ctl_set_pipe(self.config_data['switch'], self.config_data['pb_bin'], self.config_data['p4_info']):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to set pipe")
 
         function_dict = {
-                'table_for_configure_member' : ovs_p4ctl.ovs_p4ctl_add_member_and_verify,
-                'table_for_ipv4' : ovs_p4ctl.ovs_p4ctl_add_entry
+                'table_for_configure_member' : p4rt_ctl.p4rt_ctl_add_member_and_verify,
+                'table_for_ipv4' : p4rt_ctl.p4rt_ctl_add_entry
                 }
         table_entry_dict = {
                 'table_for_configure_member' : 'member_details',
@@ -111,11 +106,11 @@ class L3_Verify_Traffic_with_Action_Profile(BaseTest):
 
         send_port_id, receive_port_id = 0,1
         #Record port counter before sending traff
-        receive_cont_1 = gnmi_get_params_counter(self.gnmicli_params[receive_port_id])
+        receive_cont_1 = gnmi_get_params_counter(self.gnmictl_params[receive_port_id])
         if not receive_cont_1:  
             self.result.addFailure(self, sys.exc_info())
             print (f"FAIL: unable to get counter of {self.config_data['port'][receive_port_id]['name']}")
-        send_cont_1 = gnmi_get_params_counter(self.gnmicli_params[send_port_id])
+        send_cont_1 = gnmi_get_params_counter(self.gnmictl_params[send_port_id])
         if not send_cont_1:
             self.result.addFailure(self, sys.exc_info())
             print (f"FAIL: unable to get counter of {self.config_data['port'][send_port_id]['name']}")
@@ -136,11 +131,11 @@ class L3_Verify_Traffic_with_Action_Profile(BaseTest):
             self.fail(f"FAIL: Verification of UDP packets sent failed with exception {err}")
   
         #Record port counter after sending traffic
-        send_cont_2 = gnmi_get_params_counter(self.gnmicli_params[send_port_id])
+        send_cont_2 = gnmi_get_params_counter(self.gnmictl_params[send_port_id])
         if not send_cont_2:
             self.result.addFailure(self, sys.exc_info())
             print(f"FAIL: unable to get counter of {self.config_data['port'][send_port_id]['name']}")
-        receive_cont_2 = gnmi_get_params_counter(self.gnmicli_params[receive_port_id])
+        receive_cont_2 = gnmi_get_params_counter(self.gnmictl_params[receive_port_id])
         if not receive_cont_2:
             self.result.addFailure(self, sys.exc_info())
             print (f"FAIL: unable to get counter of {self.config_data['port'][receive_port_id]['name']}")
@@ -177,11 +172,11 @@ class L3_Verify_Traffic_with_Action_Profile(BaseTest):
         # Record TCP counter
         send_port_id, receive_port_id = 0,1
         #Record port counter before sending traff
-        receive_cont_1 = gnmi_get_params_counter(self.gnmicli_params[receive_port_id])
+        receive_cont_1 = gnmi_get_params_counter(self.gnmictl_params[receive_port_id])
         if not receive_cont_1:  
             self.result.addFailure(self, sys.exc_info())
             print (f"FAIL: unable to get counter of {self.config_data['port'][receive_port_id]['name']}")
-        send_cont_1 = gnmi_get_params_counter(self.gnmicli_params[send_port_id])
+        send_cont_1 = gnmi_get_params_counter(self.gnmictl_params[send_port_id])
         if not send_cont_1:
             self.result.addFailure(self, sys.exc_info())
             print (f"FAIL: unable to get counter of {self.config_data['port'][send_port_id]['name']}")
@@ -201,11 +196,11 @@ class L3_Verify_Traffic_with_Action_Profile(BaseTest):
             self.fail(f"FAIL: Verification of TCP packets sent failed with exception {err}")
         
         #Record port counter after sending traffic
-        send_cont_2 = gnmi_get_params_counter(self.gnmicli_params[send_port_id])
+        send_cont_2 = gnmi_get_params_counter(self.gnmictl_params[send_port_id])
         if not send_cont_2:
             self.result.addFailure(self, sys.exc_info())
             print(f"FAIL: unable to get counter of {self.config_data['port'][send_port_id]['name']}")
-        receive_cont_2 = gnmi_get_params_counter(self.gnmicli_params[receive_port_id])
+        receive_cont_2 = gnmi_get_params_counter(self.gnmictl_params[receive_port_id])
         if not receive_cont_2:
             self.result.addFailure(self, sys.exc_info())
             print (f"FAIL: unable to get counter of {self.config_data['port'][receive_port_id]['name']}")
@@ -276,12 +271,12 @@ class L3_Verify_Traffic_with_Action_Profile(BaseTest):
         table = self.config_data['table'][1]
         print(f"Deleting rules")
         for del_action in table['del_action']:
-            ovs_p4ctl.ovs_p4ctl_del_entry(table['switch'], table['name'], del_action.split(",")[0])
+            p4rt_ctl.p4rt_ctl_del_entry(table['switch'], table['name'], del_action.split(",")[0])
 
         table = self.config_data['table'][0]
         print("Deleting members")
         for del_member in table['del_member']:
-            ovs_p4ctl.ovs_p4ctl_del_member(table['switch'],table['name'],del_member)
+            p4rt_ctl.p4rt_ctl_del_member(table['switch'],table['name'],del_member)
             
         if self.result.wasSuccessful():
             print("Test has PASSED")

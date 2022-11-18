@@ -29,10 +29,10 @@ from ptf.base_tests import BaseTest
 from ptf.testutils import *
 
 # framework related imports
-import common.utils.ovsp4ctl_utils as ovs_p4ctl
+import common.utils.p4rtctl_utils as p4rt_ctl
 import common.utils.test_utils as test_utils
 from common.utils.config_file_utils import get_config_dict, get_gnmi_params_simple
-from common.utils.gnmi_cli_utils import gnmi_cli_set_and_verify
+from common.utils.gnmi_ctl_utils import gnmi_ctl_set_and_verify
 from common.lib.telnet_connection import connectionManager
 
 class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
@@ -50,11 +50,11 @@ class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
             self.vm_cred = ""
 
         self.config_data = get_config_dict(config_json,vm_location_list=test_params['vm_location_list'],vm_cred=self.vm_cred)
-        self.gnmicli_params = get_gnmi_params_simple(self.config_data)
+        self.gnmictl_params = get_gnmi_params_simple(self.config_data)
 
     def runTest(self):
         
-        if not gnmi_cli_set_and_verify(self.gnmicli_params):
+        if not gnmi_ctl_set_and_verify(self.gnmictl_params):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to configure gnmi cli ports")
 
@@ -69,8 +69,8 @@ class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
         else:
             self.result.addFailure(self, sys.exc_info())
             self.fail("FAIL: Please specify p4 artifacts, pna or psa?")
-            
-        if not ovs_p4ctl.ovs_p4ctl_set_pipe(self.config_data['switch'], self.config_data['pb_bin'], self.config_data['p4_info']):
+        
+        if not p4rt_ctl.p4rt_ctl_set_pipe(self.config_data['switch'], self.config_data['pb_bin'], self.config_data['p4_info']):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to set pipe")
         
@@ -107,7 +107,7 @@ class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
             print(f"Scenario : {table['description']}")
             print(f"Adding {table['description']} rules")
             for match_action in table['match_action']:
-                if not ovs_p4ctl.ovs_p4ctl_add_entry(table['switch'],table['name'], match_action):
+                if not p4rt_ctl.p4rt_ctl_add_entry(table['switch'],table['name'], match_action):
                     self.result.addFailure(self, sys.exc_info())
                     self.fail(f"Failed to add table entry {match_action}")
      
@@ -121,7 +121,7 @@ class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
             print("FAIL: failed to inital ping")
         
         cnt1,cnt2={},{}
-        cnt_table_name_and_id = ovs_p4ctl.ovs_p4ctl_get_counter_table_and_id()
+        cnt_table_name_and_id = p4rt_ctl.p4rt_ctl_get_counter_table_and_id()
         if not cnt_table_name_and_id:
             self.result.addFailure(self, sys.exc_info())
             print("FAIL: failed to get counter table name and id")
@@ -132,7 +132,7 @@ class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
             cnt1[cnt_table_name] = []
             for j in self.config_data['counter']['index']:
                 flow = f"counter_id={counter_id},index={j}"
-                data = ovs_p4ctl.ovs_p4ctl_get_counter_data(self.config_data['switch'],cnt_table_name, flow)
+                data = p4rt_ctl.p4rt_ctl_get_counter_data(self.config_data['switch'],cnt_table_name, flow)
                 if not data:
                     self.result.addFailure(self, sys.exc_info())
                     print("FAIL: failed to get counter data")
@@ -152,7 +152,7 @@ class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
             cnt2[cnt_table_name] = []
             for j in range(len(self.config_data['counter']['index'])):
                 flow = f"counter_id={counter_id},index={self.config_data['counter']['index'][j]}"
-                data =  ovs_p4ctl.ovs_p4ctl_get_counter_data(self.config_data['switch'],cnt_table_name, flow)
+                data =  p4rt_ctl.p4rt_ctl_get_counter_data(self.config_data['switch'],cnt_table_name, flow)
                 if not data:
                     self.result.addFailure(self, sys.exc_info())
                     print("FAIL: failed to get counter data")
@@ -190,7 +190,7 @@ class IPDK_L3EM_INDIRECT_COUNTER(BaseTest):
         for table in self.config_data['table']:
             print(f"Deleting {table['description']} rules")
             for del_action in table['del_action']:
-                ovs_p4ctl.ovs_p4ctl_del_entry(table['switch'], table['name'], del_action)
+                p4rt_ctl.p4rt_ctl_del_entry(table['switch'], table['name'], del_action)
     
         if self.result.wasSuccessful():
             print("Test has PASSED")

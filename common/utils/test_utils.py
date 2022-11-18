@@ -25,7 +25,6 @@ import json
 import os
 import subprocess
 import re
-import asyncio
 import time
 import platform
 import scapy.all as scapy
@@ -92,16 +91,53 @@ def gen_dep_files_p4c_ovs_pipeline_builder(config_data):
 
     print(f"PASS: {cmd}")
 
-    cmd = f'''cd {output_dir}; ovs_pipeline_builder --p4c_conf_file={conf_file} \
+    cmd = f'''cd {output_dir}; tdi_pipeline_builder --p4c_conf_file={conf_file} \
             --bf_pipeline_config_binary_file={pb_bin_file}'''
 
     out, returncode, err = local.execute_command(cmd)
     if returncode:
-        print(f"Failed to run ovs_pipeline_builder: {out} {err}")
+        print(f"Failed to run tdi_pipeline_builder: {out} {err}")
         return False
 
-    cmd = f'''ovs_pipeline_builder --p4c_conf_file={conf_file} \
+    cmd = f'''tdi_pipeline_builder --p4c_conf_file={conf_file} \
             --bf_pipeline_config_binary_file={pb_bin_file}'''
+
+    print(f"PASS: {cmd}")
+
+    return True
+
+def gen_dep_files_p4c_tdi_pipeline_builder(config_data):
+    """
+    util function to generate p4 artifacts
+    :params: config_data --> dict --> dictionary with all config data loaded from json
+    :returns: Boolean True/False
+    """
+    local = Local()
+    
+    p4file = config_data['p4file']
+    conf_file = p4file + ".conf"
+    output_dir = os.sep.join(["common", "p4c_artifacts", p4file])
+    pb_bin_file = config_data['p4file']+'.pb.bin'
+    config_data['pb_bin'] = output_dir + "/" + pb_bin_file
+    config_data['p4_info'] = output_dir + "/p4Info.txt"
+    p4file = p4file + ".p4"
+    cmd = f'''p4c --arch psa --target dpdk --output {output_dir}/pipe --p4runtime-files \
+            {output_dir}/p4Info.txt --bf-rt-schema {output_dir}/bf-rt.json --context \
+            {output_dir}/pipe/context.json {output_dir}/{p4file}'''
+
+    out, returncode, err = local.execute_command(cmd)
+    if returncode:
+        print(f"Failed to run p4c: {out} {err}")
+        return False
+
+    print(f"PASS: {cmd}")
+    
+    cmd = f'''cd {output_dir}; tdi_pipeline_builder --p4c_conf_file={conf_file} \
+            --bf_pipeline_config_binary_file={pb_bin_file}'''
+    out, returncode, err = local.execute_command(cmd)
+    if returncode:
+        print(f"Failed to run tdi_pipeline_builder: {out} {err}")
+        return False
 
     print(f"PASS: {cmd}")
 
@@ -134,7 +170,7 @@ def gen_dep_files_p4c_dpdk_pna_ovs_pipeline_builder(config_data):
 
     print(f"PASS: {cmd}")
     
-    cmd = f'''cd {output_dir}; ovs_pipeline_builder --p4c_conf_file={conf_file} \
+    cmd = f'''cd {output_dir};  tdi_pipeline_builder --p4c_conf_file={conf_file} \
             --bf_pipeline_config_binary_file={pb_bin_file}'''
 
     out, returncode, err = local.execute_command(cmd)
@@ -185,7 +221,7 @@ def gen_dep_files_p4c_dpdk_pna_ovs_pipeline_builder_ct_timer(config_data):
     with open(f'{output_dir}/pipe/{spec_file}', 'w', encoding='utf-8') as file:
          file.writelines(data)
 
-    cmd = f'''cd {output_dir}; ovs_pipeline_builder --p4c_conf_file={conf_file} \
+    cmd = f'''cd {output_dir}; tdi_pipeline_builder --p4c_conf_file={conf_file} \
             --bf_pipeline_config_binary_file={pb_bin_file}'''
 
     out, returncode, err = local.execute_command(cmd)
@@ -193,7 +229,7 @@ def gen_dep_files_p4c_dpdk_pna_ovs_pipeline_builder_ct_timer(config_data):
         print(f"Failed to run ovs_pipeline_builder: {out} {err}")
         return False
 
-    cmd = f'''ovs_pipeline_builder --p4c_conf_file={conf_file} \
+    cmd = f'''tdi_pipeline_builder --p4c_conf_file={conf_file} \
             --bf_pipeline_config_binary_file={pb_bin_file}'''
 
     print(f"PASS: {cmd}")

@@ -33,11 +33,11 @@ def p4rt_ctl_set_pipe(bridge, device_config, p4info):
     try:
         out = p4rt_ctl.p4ctl_set_pipe(bridge, device_config, p4info)
         if out == None:
-            print(f"PASS: ovs-p4ctl set pipe: {device_config}")
+            print(f"PASS:p4rt-ctl set pipe: {device_config}")
             return True
 
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl set pipe Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl set pipe Failed with error: {error}")
         return False
 
     
@@ -51,11 +51,11 @@ def p4rt_ctl_add_entry(bridge, tbl_name, flow):
     try:
         out = p4rt_ctl.p4ctl_add_entry(bridge, tbl_name, flow)
         if out == None:
-            print(f"PASS: ovs-p4ctl add entry: {flow}")
+            print(f"PASS:p4rt-ctl add entry: {flow}")
             return True
 
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl add entry Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl add entry Failed with error: {error}")
         return False
 
 
@@ -71,14 +71,12 @@ def p4rt_ctl_del_entry(bridge, tbl_name, match_key):
     try:
         out = p4rt_ctl.p4ctl_del_entry(bridge, tbl_name, match_key)
         if out == None:
-            print(f"PASS: ovs-p4ctl del entry: {match_key}")
+            print(f"PASS:p4rt-ctl del entry: {match_key}")
             return True
 
     except Exception as error:
-        print(f"FAIL; ovs-p4ctl del entry Failed with error: {error}")
+        print(f"FAIL; p4rt_ctl del entry Failed with error: {error}")
         return False
-
-'''
 
 def p4rt_ctl_add_member(bridge, tbl_name, member_details):
 
@@ -92,11 +90,11 @@ def p4rt_ctl_add_member(bridge, tbl_name, member_details):
     try:
         out = p4rt_ctl.p4ctl_add_member(bridge, tbl_name, member_details)
         if out == None:
-            print(f"PASS: ovs-p4ctl add member {member_details}")
+            print(f"PASS:p4rt-ctl add member {member_details}")
             return True
 
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl add member Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl add member Failed with error: {error}")
         return False
         
 
@@ -113,7 +111,7 @@ def p4rt_ctl_add_member_and_verify(bridge, tbl_name, member_details):
     try:
         out = p4rt_ctl.p4ctl_add_member(bridge, tbl_name, member_details)
         if out == None:
-            print(f"PASS: ovs-p4ctl add member {member_details}")
+            print(f"PASS:p4rt-ctl add member {member_details}")
         f = io.StringIO()
         with redirect_stdout(f):
             out = p4rt_ctl.p4ctl_get_member(bridge, tbl_name, f'member_id={mem_id}')
@@ -126,7 +124,7 @@ def p4rt_ctl_add_member_and_verify(bridge, tbl_name, member_details):
         for i in dict_var:
             member_returned.update(dict([i.split("=")]))
         if out == None:
-            print(f"PASS: ovs-p4ctl get details for member {mem_id} :  {member_returned}")
+            print(f"PASS:p4rt-ctl get details for member {mem_id} :  {member_returned}")
         keys = member_returned.keys()
         if (tbl_name == member_returned["action_profiles"]) and (action == member_returned["actions"]) and (' '.join(map(str, action_data)) == member_returned["dst_port"]):
             print("PASS : Returned member details matching with configured group")
@@ -134,12 +132,10 @@ def p4rt_ctl_add_member_and_verify(bridge, tbl_name, member_details):
             print("FAIL : Returned member details are not matching with configured group")
             return False
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl add member Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl add member Failed with error: {error}")
         return False
 
     return True
-
-
 
 
 def p4rt_ctl_get_member(bridge, tbl_name, member_id, member_details=None):
@@ -162,7 +158,7 @@ def p4rt_ctl_get_member(bridge, tbl_name, member_id, member_details=None):
             member_returned.update(dict([i.split("=")]))
 
         if out == None:
-            print(f"PASS: ovs-p4ctl get details for member {member_id} :  {member_returned}")
+            print(f"PASS:p4rt-ctl get details for member {member_id} :  {member_returned}")
         
         if member_details != None:
             action, action_data, mem_id = p4rt_ctl.parse_profile_mem(member_details + ',' + member_id)
@@ -175,7 +171,7 @@ def p4rt_ctl_get_member(bridge, tbl_name, member_id, member_details=None):
         return member_returned    
 
     except Exception as error:
-        print(f"ovs-p4ctl get member Failed with error: {error}")
+        print(f"p4rt-ctl get member Failed with error: {error}")
         return False 
 
 def p4rt_ctl_del_member(bridge, tbl_name, member_id):
@@ -188,10 +184,10 @@ def p4rt_ctl_del_member(bridge, tbl_name, member_id):
     try:
         out = p4rt_ctl.p4ctl_del_member(bridge, tbl_name, member_id)
         if out == None:
-            print(f"PASS: ovs-p4ctl del member {member_id}")
+            print(f"PASS:p4rt-ctl del member {member_id}")
             return True
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl del member Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl del member Failed with error: {error}")
         return False
 
 
@@ -206,11 +202,11 @@ def p4rt_ctl_add_group(bridge, tbl_name, group_details):
     try:
         out = p4rt_ctl.p4ctl_add_group(bridge, tbl_name, group_details)
         if out == None:
-            print(f"PASS: ovs-p4ctl add group {group_details}")
+            print(f"PASS:p4rt-ctl add group {group_details}")
             return True
 
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl add group Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl add group Failed with error: {error}")
         return False
 
 
@@ -225,7 +221,7 @@ def p4rt_ctl_add_group_and_verify(bridge, tbl_name, group_details):
     try:
         out = p4rt_ctl.p4ctl_add_group(bridge, tbl_name, group_details)
         if out == None:
-            print(f"PASS: ovs-p4ctl add group {group_details}")
+            print(f"PASS:p4rt-ctl add group {group_details}")
         f = io.StringIO()
         with redirect_stdout(f):
             out = p4rt_ctl.p4ctl_get_group(bridge, tbl_name, f'group_id={group_id}')
@@ -234,7 +230,7 @@ def p4rt_ctl_add_group_and_verify(bridge, tbl_name, group_details):
         group_returned = dict(substring.split("=") for substring in values[1].strip().split(" "))
 
         if out == None:
-            print(f"PASS: ovs-p4ctl get details for group {group_id} :  {group_returned}")
+            print(f"PASS:p4rt-ctl get details for group {group_id} :  {group_returned}")
         if (tbl_name == group_returned["action_profiles"]) and (members == group_returned["reference_members"]) and (max_size == group_returned["max_size"]):
             print("PASS: Returned group details matching with configured group")
         else:
@@ -242,12 +238,10 @@ def p4rt_ctl_add_group_and_verify(bridge, tbl_name, group_details):
             return False
         
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl add group Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl add group Failed with error: {error}")
         return False
 
     return True
-
-
 
 def p4rt_ctl_del_group(bridge, tbl_name, group_id):
     """
@@ -259,13 +253,11 @@ def p4rt_ctl_del_group(bridge, tbl_name, group_id):
     try:
         out = p4rt_ctl.p4ctl_del_group(bridge, tbl_name, group_id)
         if out == None:
-            print(f"PASS: ovs-p4ctl del group {group_id}")
+            print(f"PASS:p4rt-ctl del group {group_id}")
             return True
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl del group Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl del group Failed with error: {error}")
         return False
-
-
 
 def p4rt_ctl_get_group(bridge, tbl_name, group_id, group_details=None):
     """
@@ -284,7 +276,7 @@ def p4rt_ctl_get_group(bridge, tbl_name, group_id, group_details=None):
         group_returned = dict(substring.split("=") for substring in values[1].strip().split(" "))
 
         if out == None:
-            print(f"PASS: ovs-p4ctl get details for group {group_id} :  {group_returned}")
+            print(f"PASS:p4rt-ctl get details for group {group_id} :  {group_returned}")
             
         if group_details != None:
             group_id, members, max_size = p4rt_ctl.parse_profile_group(group_id + ',' + group_details)
@@ -299,7 +291,7 @@ def p4rt_ctl_get_group(bridge, tbl_name, group_id, group_details=None):
         return group_returned
     
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl get group Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl get group Failed with error: {error}")
         return False
     
 def p4rt_ctl_get_counter_data(bridge, cnt_tbl_name, flow):
@@ -326,7 +318,7 @@ def p4rt_ctl_get_counter_data(bridge, cnt_tbl_name, flow):
             
         return counter
     except Exception as error:
-        print(f"FAIL: ovs-p4ctl add group Failed with error: {error}")
+        print(f"FAIL:p4rt-ctl add group Failed with error: {error}")
         return False
         
 def p4rt_ctl_get_counter_table_and_id():
@@ -353,9 +345,9 @@ def p4rt_ctl_reset_counter_entry( bridge, cnt_tbl_name, flow):
     A utility function to reset counter
     reset-counter-entry SWITCH COUNTER_TABLE RESET_COUNTER_FLOW
     Example: 
-       ovs-p4ctl reset-counter br0 \
+      p4rt-ctl reset-counter br0 \
            ipv4_host_tbl_flow_counter_packets counter_id=303591076,index=1
     """
     p4rt_ctl.p4ctl_reset_counter_entry(bridge, cnt_tbl_name, flow)
 
-'''
+

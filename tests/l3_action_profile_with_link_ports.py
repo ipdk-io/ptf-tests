@@ -43,7 +43,7 @@ from common.lib.telnet_connection import connectionManager
 import common.utils.ovsp4ctl_utils as ovs_p4ctl
 import common.utils.test_utils as test_utils
 from common.utils.config_file_utils import get_config_dict, get_gnmi_params_simple, get_interface_ipv4_dict
-from common.utils.gnmi_cli_utils import gnmi_cli_set_and_verify, gnmi_set_params, ip_set_ipv4
+from common.utils.gnmi_cli_utils import gnmi_cli_set_and_verify, ip_set_ipv4
 
 
 class L3_Action_Profile_Link(BaseTest):

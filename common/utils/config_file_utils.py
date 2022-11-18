@@ -182,7 +182,7 @@ def get_gnmi_params_simple(data):
     """
     common = ['device', 'name']
     mandatory = {'tap': [],
-                 'vhost': ['host', 'device-type', 'queues', 'socket-path'],
+                 'vhost': ['host-name', 'device-type', 'queues', 'socket-path'],
                  'link': ['pci-bdf']
                  }
     optional = ['pipeline-name', 'mempool-name', 'control-port', 'mtu', 'packet-dir']
