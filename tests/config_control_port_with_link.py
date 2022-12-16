@@ -31,11 +31,17 @@ from ptf.testutils import *
 from ptf import config
 
 # framework related imports
-import common.utils.ovsp4ctl_utils as ovs_p4ctl
+import common.utils.p4rtctl_utils as p4rt_ctl
+import common.utils.ovs_utils as ovs_utils
 import common.utils.test_utils as test_utils
-from common.utils.config_file_utils import get_config_dict, get_gnmi_params_simple, get_interface_ipv4_dict
-from common.utils.gnmi_cli_utils import gnmi_cli_set_and_verify, gnmi_set_params, ip_set_ipv4
+import common.utils.gnmi_ctl_utils as gnmi_ctl_utils
 import common.utils.tcpdump_utils as tcpdump_utils
+from common.utils.config_file_utils import (
+    get_config_dict,
+    get_gnmi_params_simple,
+    get_interface_ipv4_dict,
+    get_gnmi_phy_with_ctrl_port,
+)
 
 
 class Conttol_Port_Link(BaseTest):
@@ -48,7 +54,7 @@ class Conttol_Port_Link(BaseTest):
         config_json = test_params['config_json']
         self.capture_port = test_params['pci_bdf'][:-1] + "1"
         self.config_data = get_config_dict(config_json, test_params['pci_bdf'])
-        self.gnmicli_params = get_gnmi_params_simple(self.config_data)
+        self.gnmictl_params = get_gnmi_params_simple(self.config_data)
         self.interface_ip_list = get_interface_ipv4_dict(self.config_data)
         self.control_port =  test_utils.get_control_port(self.config_data)
         
@@ -57,14 +63,14 @@ class Conttol_Port_Link(BaseTest):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to generate P4C artifacts or pb.bin")
 
-        if not gnmi_cli_set_and_verify(self.gnmicli_params):
+        if not gnmi_ctl_set_and_verify(self.gnmicli_params):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to configure gnmi cli ports")
 
         #bring up control TAP
         ip_set_ipv4(self.interface_ip_list)
     
-        if not ovs_p4ctl.ovs_p4ctl_set_pipe(self.config_data['switch'], self.config_data['pb_bin'], self.config_data['p4_info']):
+        if not p4rt_ctl.p4rt_ctl_set_pipe(self.config_data['switch'], self.config_data['pb_bin'], self.config_data['p4_info']):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to set pipe")
         
@@ -72,7 +78,7 @@ class Conttol_Port_Link(BaseTest):
             print(f"Scenario : Control TAP with Link : {table['description']}")
             print(f"Adding {table['description']} rules")
             for match_action in table['match_action']:
-                if not ovs_p4ctl.ovs_p4ctl_add_entry(table['switch'],table['name'], match_action):
+                if not p4rt_ctl.p4rt_ctl_add_entry(table['switch'],table['name'], match_action):
                     self.result.addFailure(self, sys.exc_info())
                     self.fail(f"Failed to add table entry {match_action}")
         
@@ -93,7 +99,7 @@ class Conttol_Port_Link(BaseTest):
         for table in self.config_data['table']:
             print(f"Delete {table['description']} rules")
             for del_action in table['del_action']:
-                ovs_p4ctl.ovs_p4ctl_del_entry(table['switch'], table['name'], del_action)
+                p4rt_ctl.p4rt_ctl_del_member(table['switch'], table['name'], del_action)
                 
         print (f"Check if any tcpdump is running and tear down it")
         tcpdump_utils.tcpdump_tear_down()
