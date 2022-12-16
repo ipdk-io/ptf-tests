@@ -40,7 +40,6 @@ from common.utils.config_file_utils import (
     get_config_dict,
     get_gnmi_params_simple,
     get_interface_ipv4_dict,
-    get_gnmi_phy_with_ctrl_port,
 )
 
 
