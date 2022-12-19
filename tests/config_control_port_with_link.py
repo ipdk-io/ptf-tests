@@ -41,9 +41,10 @@ from common.utils.config_file_utils import (
     get_gnmi_params_simple,
     get_interface_ipv4_dict,
 )
+from common.utils.gnmi_ctl_utils import gnmi_ctl_set_and_verify, ip_set_ipv4
 
 
-class Conttol_Port_Link(BaseTest):
+class Control_Port_Link(BaseTest):
     def setUp(self):
         BaseTest.setUp(self)
         self.result = unittest.TestResult()
@@ -58,21 +59,25 @@ class Conttol_Port_Link(BaseTest):
         self.control_port =  test_utils.get_control_port(self.config_data)
         
     def runTest(self):
-        if not test_utils.gen_dep_files_p4c_ovs_pipeline_builder(self.config_data):
+        # Compile p4 file using p4c compiler and generate binary using tdi pipeline builder
+        if not test_utils.gen_dep_files_p4c_tdi_pipeline_builder(self.config_data):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to generate P4C artifacts or pb.bin")
 
-        if not gnmi_ctl_set_and_verify(self.gnmicli_params):
+        # Create Ports using gnmi-ctl
+        if not gnmi_ctl_set_and_verify(self.gnmictl_params):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to configure gnmi cli ports")
 
         #bring up control TAP
         ip_set_ipv4(self.interface_ip_list)
     
+        # Run Set-pipe command for set pipeline
         if not p4rt_ctl.p4rt_ctl_set_pipe(self.config_data['switch'], self.config_data['pb_bin'], self.config_data['p4_info']):
             self.result.addFailure(self, sys.exc_info())
             self.fail("Failed to set pipe")
         
+        # Add table entries
         for table in self.config_data['table']:
             print(f"Scenario : Control TAP with Link : {table['description']}")
             print(f"Adding {table['description']} rules")
@@ -94,15 +99,17 @@ class Conttol_Port_Link(BaseTest):
             self.fail(f"FAIL: No traffic seen in control pot {self.control_port[0]}")
 
     def tearDown(self):
+        # Deleting members 
         print (f'Start to tear down')
         for table in self.config_data['table']:
             print(f"Delete {table['description']} rules")
             for del_action in table['del_action']:
-                p4rt_ctl.p4rt_ctl_del_member(table['switch'], table['name'], del_action)
+                p4rt_ctl.p4rt_ctl_del_entry(table['switch'], table['name'], del_action.split(",")[0])
                 
         print (f"Check if any tcpdump is running and tear down it")
         tcpdump_utils.tcpdump_tear_down()
-    
+
+        # Removing pcap file
         result = tcpdump_utils.tcpdump_remove_pcap_file(self.control_port[0])
         if result: 
             print (f"Remove exiting pcap file directory {result}")
