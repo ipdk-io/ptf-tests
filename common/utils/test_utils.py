@@ -147,7 +147,7 @@ def gen_dep_files_p4c_dpdk_pna_tdi_pipeline_builder(config_data):
 
     return True
 
-
+# This function is using for connection Tracking timer changes
 def gen_dep_files_p4c_dpdk_pna_tdi_pipeline_builder_ct_timer(config_data):
     """
     util function to generate p4 artifacts for dpdk pna architecture
@@ -178,8 +178,9 @@ def gen_dep_files_p4c_dpdk_pna_tdi_pipeline_builder_ct_timer(config_data):
     with open(f"{output_dir}/pipe/{spec_file}", "r", encoding="utf-8") as file:
         data = file.readlines()
 
-    data[155] = "\t\t60\n"
-    data[157] = "\t\t180\n"
+    data[160] = "\t\t60\n"
+    data[161] = "\t\t120\n"
+    data[162] = "\t\t180\n"
 
     with open(f"{output_dir}/pipe/{spec_file}", "w", encoding="utf-8") as file:
         file.writelines(data)
