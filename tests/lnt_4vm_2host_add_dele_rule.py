@@ -54,7 +54,7 @@ class LNT_4VM_2host_add_del_rule(BaseTest):
 
         self.config_data = get_config_dict(
             config_json,
-            pci_bdf=test_params["pci_bdf"],
+            pci_bdf=test_params["lnt_pci_bdf"],
             vm_location_list=test_params["vm_location_list"],
             vm_cred=self.vm_cred,
             client_cred=test_params["client_cred"],
