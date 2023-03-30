@@ -79,6 +79,7 @@ class TestMinHotPlugAndFio(BaseTest):
             self.assertTrue(response)
 
     def tearDown(self):
+        self.platforms_factory.cmd_sender.stop()
         self.ipu_storage_platform.clean()
         self.storage_target_platform.clean()
         self.host_target_platform.clean()
@@ -140,6 +141,7 @@ class TestMaxHotPlug(BaseTest):
         )
 
     def tearDown(self):
+        self.platforms_factory.cmd_sender.stop()
         self.ipu_storage_platform.clean()
         self.storage_target_platform.clean()
         self.host_target_platform.clean()
@@ -192,6 +194,7 @@ class TestAboveMaxHotPlug(BaseTest):
         )
 
     def tearDown(self):
+        self.platforms_factory.cmd_sender.stop()
         self.ipu_storage_platform.clean()
         self.storage_target_platform.clean()
         self.host_target_platform.clean()
