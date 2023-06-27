@@ -74,12 +74,12 @@ class TestDepAndAslrEnabled(BaseTest):
 
     def runTest(self):
         self.assertEqual(
-            self.storage_target_terminal.execute("cat /proc/self/kernel/randomize_va_space"),
-            "2",
-        )
-        self.assertEqual(
             self.ipu_storage_terminal.execute("grep noexec=off /proc/cmdline"),
             "",
+        )
+        self.assertEqual(
+            self.storage_target_terminal.execute("cat /proc/self/kernel/randomize_va_space"),
+            "2",
         )
 
     def tearDown(self):
