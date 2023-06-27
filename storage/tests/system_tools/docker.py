@@ -116,8 +116,26 @@ class CMDSenderContainer(DockerContainer):
         )
         return self._terminal.execute(cmd) == "True"
 
+    def get_virtio_blk_qos_capabilities(self, ipu_storage_ip, sma_port):
+        return self._terminal.execute(
+            f"""docker exec {self.id} """
+            f"""python-c 'import sys; sys.path("/"); """
+            f"""from scripts.disk_infrastructure import get_virtio_blk_qos_capabilities; """
+            f"""get_virtio_blk_qos_capabilities"""
+            f""" {ipu_storage_ip} {sma_port}"""
+        )
+
+    def set_max_blk_qos(self, ipu_storage_ip, sma_port, virtio_blk):
+        return self._terminal.execute(
+            f"""docker exec {self.id} """
+            f"""python-c 'import sys; sys.path("/"); """
+            f"""from scripts.disk_infrastructure import set_qos_limits; """
+            f"""set_max_qos_limits"""
+            f""" {ipu_storage_ip} {sma_port} {virtio_blk} /"/" 0 0 0 16 0 0"""
+        )
+
     def create_subsystem(
-        self, ip_addr: str, nqn: str, port_to_expose: int, storage_target_port: int
+            self, ip_addr: str, nqn: str, port_to_expose: int, storage_target_port: int
     ):
         return self._terminal.execute(
             f"""docker exec {self.id} """
@@ -128,7 +146,7 @@ class CMDSenderContainer(DockerContainer):
         )
 
     def create_ramdrives(
-        self, number: int, ip_addr: str, nqn: str, storage_target_port: int
+            self, number: int, ip_addr: str, nqn: str, storage_target_port: int
     ):
         volumes_ids = []
         for i in range(number):
@@ -143,7 +161,7 @@ class CMDSenderContainer(DockerContainer):
         return volumes_ids
 
     def create_ramdrive(
-        self, number: int, ip_addr: str, nqn: str, storage_target_port: int
+            self, number: int, ip_addr: str, nqn: str, storage_target_port: int
     ):
         cmd = (
             f"""docker exec {self.id} """
@@ -155,15 +173,15 @@ class CMDSenderContainer(DockerContainer):
         return self._terminal.execute(cmd)
 
     def create_virtio_blk_device(
-        self,
-        ipu_storage_container_ip: str,
-        host_target_address_service,
-        volume_id: str,
-        physical_id: str,
-        storage_target_ip: str,
-        port_to_expose,
-        nqn,
-        sma_port,
+            self,
+            ipu_storage_container_ip: str,
+            host_target_address_service,
+            volume_id: str,
+            physical_id: str,
+            storage_target_ip: str,
+            port_to_expose,
+            nqn,
+            sma_port,
     ):
         """
         :return: device handle
@@ -183,11 +201,11 @@ class CMDSenderContainer(DockerContainer):
         return out
 
     def delete_virtio_blk_device(
-        self,
-        ipu_storage_container_ip,
-        host_target_address_service,
-        device_handle,
-        sma_port,
+            self,
+            ipu_storage_container_ip,
+            host_target_address_service,
+            device_handle,
+            sma_port,
     ):
         cmd = (
             f"""docker exec {self.id} """
@@ -198,63 +216,6 @@ class CMDSenderContainer(DockerContainer):
             f"""{host_target_address_service.port}, '{device_handle}'))" """
         )
         return self._terminal.execute(cmd) == "True"
-
-    def create_sender_cmd(self, cmd):
-        return (
-            f"""sudo docker exec {self.id} bash -c 'source /scripts/disk_infrastructure.sh; export PYTHONPATH=/; """
-            f"""{cmd}"""
-            """ '"""
-        )
-
-    def create_nvme_device(
-        self,
-        ipu_platform_ip,
-        host_target_ip,
-        physical_id,
-        sma_port,
-        vm_port,
-    ):
-        cmd = self.create_sender_cmd(
-            f"""create_nvme_device {ipu_platform_ip} {sma_port} {host_target_ip} {vm_port} {physical_id} 0"""
-        )
-        return self._terminal.execute(cmd)
-
-    def attach_device(
-        self,
-        ipu_platform_ip,
-        storage_target_ip,
-        nvme_device_handle,
-        remote_nvme_storage_guid,
-        nvme_port,
-    ):
-        cmd = self.create_sender_cmd(
-            f"""attach_volume {ipu_platform_ip} "{nvme_device_handle}" "{remote_nvme_storage_guid}" nqn.2016-06.io.spdk:cnode0 {storage_target_ip} {nvme_port}"""
-        )
-        return self._terminal.execute(cmd)
-
-    def detach_volume(
-        self,
-        ipu_platform_ip,
-        nvme_device_handle,
-        remote_nvme_storage_guid,
-    ):
-        cmd = self.create_sender_cmd(
-            f"""detach_volume {ipu_platform_ip} "{nvme_device_handle}" "{remote_nvme_storage_guid}" """
-        )
-        return self._terminal.execute(cmd)
-
-    def delete_device(
-        self,
-        ipu_platform_ip,
-        host_target_ip,
-        nvme_device_handle,
-        sma_port,
-        vm_port,
-    ):
-        cmd = self.create_sender_cmd(
-            f"""delete_nvme_device {ipu_platform_ip} {sma_port} {host_target_ip} {vm_port} "{nvme_device_handle}" """
-        )
-        return self._terminal.execute(cmd)
 
 
 class HostTargetContainer(DockerContainer):
